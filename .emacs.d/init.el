@@ -249,3 +249,23 @@ are always included."
 (require 'ciel)
 (global-set-key "\C-ci" 'ciel-ci)
 (global-set-key "\C-co" 'ciel-co)
+
+(defun shared-yank ()
+  "yank from shared kill ring file"
+  (interactive)
+  (with-temp-buffer
+    (insert-file-contents "~/.tmp/shared_kill_ring")
+    (setq shared_kill_ring (read (buffer-string))))
+  (insert-before-markers (format "%s" shared_kill_ring)))
+(global-set-key "\M-u" 'shared-yank)
+
+(defun shared-kill (beg end)
+  "kill to shared kill ring file"
+  (interactive "r")
+  (if (and mark-active transient-mark-mode)
+      (progn
+        (setq temp (buffer-substring beg end))
+        (with-temp-buffer
+          (insert (format "%s" temp))
+          (write-file "~/.tmp/shared_kill_ring")))))
+(global-set-key "\M-j" 'shared-kill)
